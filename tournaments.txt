@@ -1,0 +1,3 @@
+Week 1,tournament/uwaterloo-ultimate-fall-2023-week-1-oh-we-re-so/event/ultimate-singles,1460704
+Week 2,tournament/uwaterloo-ultimate-fall-2023-week-2-electric-boogaloo/event/ultimate-singles,1469093
+September Showdown,tournament/uwaterloo-ultimate-fall-2023-week-3-september-showdown/event/ultimate-singles,1461900
