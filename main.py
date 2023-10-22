@@ -392,12 +392,15 @@ def add_tournament(name, link, phase_id):
 
 f = open("tournaments.txt", 'r')
 r = f.readlines()
+tournaments = []
 for line in r:
+    tournaments.append(line.strip("\n"))
     line = line.strip("\n").split(",")
     add_tournament(str(line[0]), str(line[1]), int(line[2]))
 
 all_players.sort(reverse=True, key=lambda x: x.display_rating)
 all_names = [x.name.lower() for x in all_players]
+print(tournaments)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -698,9 +701,12 @@ async def on_message(message):
         cmd = message.content.split()[0][1:]
 
         if cmd == "add":
-            await message.channel.send("Adding, Please Wait")
-            await addTournament(original_message)
-            await message.channel.send("Finished Adding!")
+            if original_message not in tournaments:
+                await message.channel.send("Adding, Please Wait")
+                await addTournament(original_message)
+                await message.channel.send("Finished Adding!")
+            else:
+                await message.channel.send("Already Added")
 
         if cmd == "player":
             await showPlayer(message)
