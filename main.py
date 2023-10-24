@@ -401,7 +401,7 @@ for line in r:
 
 all_players.sort(reverse=True, key=lambda x: x.display_rating)
 all_names = [x.name.lower() for x in all_players]
-print(tournaments)
+test_servers = ["Tournament Stats Bot Testing Server", "KingCasual's Server"]
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -411,6 +411,7 @@ TOKEN = "MTAzMDk4ODg0MDA1NzQ0MjMwNQ.G1Xfn6.ad_lQ8HwpMeoOCVGQ4EG9hUldxxKDRX99SLnW
 
 tree = app_commands.CommandTree(client)
 
+"""
 highest = []
 for player in all_players:
     spr_lst = []
@@ -425,7 +426,7 @@ for player in all_players:
 
 highest.sort(key=lambda x: x[1], reverse=True)
 print(highest)
-
+"""
 
 @commands.command()
 async def addTournament(ctx):
@@ -701,8 +702,9 @@ async def on_message(message):
         message.content = message.content.lower()
         all_cmd = message.content.split()
         cmd = message.content.split()[0][1:]
+        admin = "Exec" in [y.name.lower() for y in message.author.roles] or message.guild.name in test_servers
 
-        if cmd == "add":
+        if cmd == "add" and admin:
             if original_message not in tournaments:
                 await message.channel.send("Adding, Please Wait")
                 await addTournament(original_message)
@@ -734,26 +736,31 @@ async def on_message(message):
                    "before and after an equals sign separating the two players. "
             await message.channel.send(help)
 
-        # if cmd == "least consistent player award":
-        #    highest = []
-        #    for player in all_players:
-        #        spr_lst = []
-        #        for tourney in player.seeding:
-        #            spr = LRFV(player.seeding[tourney]) - LRFV(player.placement[tourney])
-        #            if len(player.seeding) > 1:
-        #                spr_lst.append(spr)
+        if message.content.lower()[1:] == "least consistent player award" and admin:
+            highest = []
+            for player in all_players:
+                spr_lst = []
+                for tourney in player.seeding:
+                    spr = LRFV(player.seeding[tourney]) - LRFV(player.placement[tourney])
+                    if len(player.seeding) > 1:
+                        spr_lst.append(spr)
 
-        #        if len(spr_lst) >= 2:
-        #            sd = standard_deviation(spr_lst)
-        #            highest.append([player.name, sd])
+                if len(spr_lst) >= 2:
+                    sd = standard_deviation(spr_lst)
+                    highest.append([player.name, sd])
 
-        #    highest.sort(key=lambda x: x[1], reverse=True)
+            highest.sort(key=lambda x: x[1], reverse=True)
 
-        #    await message.channel.send("The Least Consistent Player Award goes to: %s" % highest[0][0])
+            await message.channel.send("The Least Consistent Player Award goes to: %s" % highest[0][0])
 
         if cmd == "leaderboard":
-            leaderboard = sorted([player for player in all_players if len(player.sets) > 0 and len(player.placement) >= int(all_cmd[1])],
-                                 key=lambda a: expose(a.rating), reverse=True)
+            if len(all_cmd) > 1:
+                num_tournaments = int(all_cmd[1])
+            else:
+                num_tournaments = 1
+            leaderboard = sorted(
+                [player for player in all_players if len(player.sets) > 0 and len(player.placement) >= num_tournaments],
+                key=lambda a: expose(a.rating), reverse=True)
             messages = ""
 
             for count, ranking in enumerate(leaderboard):
