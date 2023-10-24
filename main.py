@@ -302,7 +302,8 @@ def add_seeding(name, phase_id, page, per_page):
     response = requests.post(url, json={"query": getSeeds, "variables": seed_query}, headers=header)
     all_seeds = response.json()['data']['phase']['seeds']['nodes']
     for seed in all_seeds:
-        if seed['entrant']['participants'][0]['prefix'] is not None and seed['entrant']['participants'][0]['prefix'] != "":
+        if seed['entrant']['participants'][0]['prefix'] is not None and seed['entrant']['participants'][0][
+            'prefix'] != "":
             temp_name = seed['entrant']['participants'][0]['prefix'] + " | " + seed['entrant']['participants'][0][
                 'gamerTag']
         else:
@@ -698,6 +699,7 @@ async def on_message(message):
     if message.content.startswith("$"):
         original_message = message.content
         message.content = message.content.lower()
+        all_cmd = message.content.split()
         cmd = message.content.split()[0][1:]
 
         if cmd == "add":
@@ -720,7 +722,19 @@ async def on_message(message):
         if cmd == "results":
             await resultsEmbed(message)
 
-        #if cmd == "least consistent player award":
+        if cmd == "ty" or message.content[1:] == "thank you":
+            await message.channel.send("You're Welcome <3")
+
+        if cmd == "help":
+            help = "Current supported commands:\n- `add [tournament name],[link],[phase id]` add a tournament to the " \
+                   "rankings (mod only)\n- `player [player name]` show the overall tournament results of a player\n- " \
+                   "`sets [player name]` show the specific sets a player\n- `leaderboard [tournaments (1 if " \
+                   "omitted)]` show the current best rated players who played in a minimum number of tournaments.\n- " \
+                   "`h2h [player name] = [player name]` shows head-to-head data. Make sure there is a space both " \
+                   "before and after an equals sign separating the two players. "
+            await message.channel.send(help)
+
+        # if cmd == "least consistent player award":
         #    highest = []
         #    for player in all_players:
         #        spr_lst = []
@@ -738,7 +752,7 @@ async def on_message(message):
         #    await message.channel.send("The Least Consistent Player Award goes to: %s" % highest[0][0])
 
         if cmd == "leaderboard":
-            leaderboard = sorted([player for player in all_players if len(player.sets) > 0],
+            leaderboard = sorted([player for player in all_players if len(player.sets) > 0 and len(player.placement) >= int(all_cmd[1])],
                                  key=lambda a: expose(a.rating), reverse=True)
             messages = ""
 
