@@ -363,6 +363,8 @@ def add_sets(name, link, page, per_page):
     for player in all_players:
         player.display_rating = 100 * (expose(player.rating) - expose(ranks[-1].rating))
         if len(player.sets) > 0:
+            if player.rank != 0:
+                player.prev_rank = player.rank
             player.rank = ranks.index(player) + 1
 
         player.all_ratings.append(int(player.display_rating))
@@ -427,6 +429,7 @@ for player in all_players:
 highest.sort(key=lambda x: x[1], reverse=True)
 print(highest)
 """
+
 
 @commands.command()
 async def addTournament(ctx):
@@ -793,9 +796,6 @@ async def on_message(message):
                 await message.channel.send(table_str(leaderboard, start, end, start, end))
             except:
                 await message.channel.send("Invalid Size Input!")
-
-        if cmd == "thank you":
-            await message.channel.send("You're Welcome")
 
 
 client.run(TOKEN)

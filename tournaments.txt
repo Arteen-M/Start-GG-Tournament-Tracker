@@ -3,3 +3,4 @@ Week 2,tournament/uwaterloo-ultimate-fall-2023-week-2-electric-boogaloo/event/ul
 September Showdown,tournament/uwaterloo-ultimate-fall-2023-week-3-september-showdown/event/ultimate-singles,1461900
 Week 4,tournament/uwaterloo-ultimate-fall-2023-week-4-ready-to-read/event/ultimate-singles,1480974
 Week 5,tournament/uwaterloo-ultimate-fall-2023-week-5-empty-throne-2-prep/event/ultimate-singles,1483534
+The Harrowing,tournament/uwaterloo-ultimate-fall-2023-week-6-the-harrowing/event/ultimate-singles,1495120
