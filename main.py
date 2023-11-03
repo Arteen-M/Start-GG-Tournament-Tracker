@@ -337,8 +337,9 @@ def add_sets(name, link, page, per_page):
         p2 = s['slots'][1]
         winner_name = p1['entrant']['name'] if s['winnerId'] == p1['entrant']['id'] else p2['entrant']['name']
         loser_name = p2['entrant']['name'] if s['winnerId'] == p1['entrant']['id'] else p1['entrant']['name']
-        score = sorted([p1['standing']['stats']['score']['value'], p2['standing']['stats']['score']['value']],
-                       reverse=True)
+        p1_score = p1['standing']['stats']['score']['value'] if p1['standing']['stats']['score']['value'] is not None else 0
+        p2_score = p2['standing']['stats']['score']['value'] if p2['standing']['stats']['score']['value'] is not None else 0
+        score = sorted([p1_score, p2_score], reverse=True)
 
         new_set = Set(winner_name, loser_name, score, name)
         if score[1] != -1:

@@ -4,3 +4,4 @@ September Showdown,tournament/uwaterloo-ultimate-fall-2023-week-3-september-show
 Week 4,tournament/uwaterloo-ultimate-fall-2023-week-4-ready-to-read/event/ultimate-singles,1480974
 Week 5,tournament/uwaterloo-ultimate-fall-2023-week-5-empty-throne-2-prep/event/ultimate-singles,1483534
 The Harrowing,tournament/uwaterloo-ultimate-fall-2023-week-6-the-harrowing/event/ultimate-singles,1495120
+Week 7,tournament/uwaterloo-ultimate-fall-2023-week-7-we-schmoovin/event/ultimate-singles,1500217
