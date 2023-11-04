@@ -1,4 +1,8 @@
-token = '1a2d00e165d4341d4ce83efabff3db90'
+import json
+
+f = open("tokens.json")
+data = json.load(f)
+token = data["StartGG Token"]
 url = 'https://api.start.gg/gql/alpha'
 header = {"Authorization": "Bearer " + token}
 

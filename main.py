@@ -6,6 +6,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import math
+import json
 
 # Change the default TrueSkill Environment so that draw probability is 0 (you can't tie in smash bros)
 setup(draw_probability=0.0)
@@ -410,7 +411,10 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
 client = discord.Client(intents=intents)
-TOKEN = "MTAzMDk4ODg0MDA1NzQ0MjMwNQ.G1Xfn6.ad_lQ8HwpMeoOCVGQ4EG9hUldxxKDRX99SLnWQ"
+f = open("tokens.json")
+data = json.load(f)
+TOKEN = data["Discord Token"]
+# TOKEN = "MTAzMDk4ODg0MDA1NzQ0MjMwNQ.G1Xfn6.ad_lQ8HwpMeoOCVGQ4EG9hUldxxKDRX99SLnWQ"
 
 tree = app_commands.CommandTree(client)
 
