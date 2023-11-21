@@ -719,6 +719,8 @@ async def on_message(message):
                 await message.channel.send("Finished Adding!")
             else:
                 await message.channel.send("Already Added")
+        else:
+            await message.channel.send("Incorrect Permissions")
 
         if cmd == "player":
             await showPlayer(message)
