@@ -1,9 +1,2 @@
-Week 1,tournament/uwaterloo-ultimate-fall-2023-week-1-oh-we-re-so/event/ultimate-singles,1460704
-Week 2,tournament/uwaterloo-ultimate-fall-2023-week-2-electric-boogaloo/event/ultimate-singles,1469093
-September Showdown,tournament/uwaterloo-ultimate-fall-2023-week-3-september-showdown/event/ultimate-singles,1461900
-Week 4,tournament/uwaterloo-ultimate-fall-2023-week-4-ready-to-read/event/ultimate-singles,1480974
-Week 5,tournament/uwaterloo-ultimate-fall-2023-week-5-empty-throne-2-prep/event/ultimate-singles,1483534
-The Harrowing,tournament/uwaterloo-ultimate-fall-2023-week-6-the-harrowing/event/ultimate-singles,1495120
-Week 7,tournament/uwaterloo-ultimate-fall-2023-week-7-we-schmoovin/event/ultimate-singles,1500217
-Week 8,tournament/uwaterloo-ultimate-fall-2023-week-8-slightly-schmoovin/event/ultimate-singles,1506249
-Week 9,tournament/uwaterloo-ultimate-fall-2023-week-9-show-me-your-moves/event/ultimate-singles,1512055
+Week 1,tournament/uwaterloo-ultimate-winter-2024-week-1-new-year-same-weekly/event/ultimate-singles,1548644
+Winter Welcome Week,tournament/uwaterloo-ultimate-winter-2024-week-2-winter-welcome-week/event/ultimate-singles,1557391
