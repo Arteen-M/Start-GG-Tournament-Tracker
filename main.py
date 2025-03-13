@@ -848,6 +848,7 @@ async def on_message(message):
         if cmd == "help":
             help = "Current supported commands:\n- `add [tournament name],[link],[phase id]` add a tournament to the " \
                    "rankings (mod only)\n- `player [player name]` show the overall tournament results of a player\n- " \
+                   "`results [player name]` show the specific players results.\n- " \
                    "`sets [player name]` show the specific sets a player\n- `leaderboard [tournaments (1 if " \
                    "omitted)]` show the current best rated players who played in a minimum number of tournaments.\n- " \
                    "`h2h [player name] = [player name]` shows head-to-head data. Make sure there is a space both " \
