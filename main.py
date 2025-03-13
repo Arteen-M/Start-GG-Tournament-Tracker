@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 from commands import *
 from trueskill import setup, Rating, rate_1vs1, expose
 import asyncio
@@ -79,6 +80,8 @@ def table_str(players, row_a, row_b, col_a, col_b):  # inclusive numbers
     table = " " * name_pad
     extra_spaces = ""
 
+    score_dict = {}
+
     for c in range(col_a, col_b + 1):  # first row
         if len(names[c]) < 4:
             extra_spaces = " " * (5 - len(names[c]) - 1)
@@ -90,6 +93,7 @@ def table_str(players, row_a, row_b, col_a, col_b):  # inclusive numbers
 
     for r in range(row_a, row_b + 1):
         table += '\n' + names[r].ljust(name_pad)
+        score_dict[names[r]] = []
         for c in range(col_a, col_b + 1):
             if len(names[c]) < 5:
                 if len(names[c]) == 4:
@@ -103,12 +107,33 @@ def table_str(players, row_a, row_b, col_a, col_b):  # inclusive numbers
             if names[c] != names[r]:
                 set_count = str(players[r].head_to_head(names[c].lower()))
                 set_count = set_count[1:len(set_count) - 1].replace(",", " -")
+                if set_count == "0 - 0":
+                    set_count = "x"
             else:
                 set_count = "x"
             # table += f"| {set_count}".ljust(len(names[c]) + add)
             table += ("| %s" % set_count).ljust(len(names[c]) + add)
+            set_count_display = set_count if '0' in set_count else set_count.replace("-", "=")
+            score_dict[names[r]].append(set_count_display)
 
-    return '`' * 3 + table + '`' * 3
+    df = pd.DataFrame(score_dict, index=names)
+    df = df.transpose()
+    df.to_csv("PR Table.csv")
+
+    return '`' * 3 + '\n' + table + '`' * 3
+
+
+def sum_string_across_list(lst, start=0, end=0):
+    string_return = ""
+    if end == 0:
+        e = len(lst)
+    else:
+        e = end
+
+    for i in range(start, e):
+        string_return += lst[i] + " "
+
+    return string_return
 
 
 class Set:
@@ -188,7 +213,7 @@ class Player:
 
             if sets.score[1] != -1 and sets.score[0] != 1:
                 message += "`" + sets.winner + " Defeats " + sets.loser + " " + str(  # Add each individual set
-                    sets.score[0]) + " - " + str(sets.score[1])  # With the names and score\
+                    sets.score[0]) + " - " + str(sets.score[1])  # With the names and score
 
                 uf = LRFV(all_players[all_names.index(sets.winner.lower())].seeding[sets.tourney]) - LRFV(
                     all_players[all_names.index(sets.loser.lower())].seeding[sets.tourney])
@@ -232,6 +257,7 @@ class Player:
         rate = "% " + str(round(self.win_rate, 2))
         count = str(self.set_counts[0]) + "-" + str(self.set_counts[1])
         seed = ordinal(round(sum(self.seeding.values()) / len(self.seeding)))
+        # print(name, self.placement.values(), len(self.placement))
         result = ordinal(round(sum(self.placement.values()) / len(self.placement)))
         rank = "Unranked"
 
@@ -395,7 +421,8 @@ def add_tournament(name, link, phase_id):
             pass
 
 
-f = open("tournaments.txt", 'r')
+file_name = "Tournaments/tournaments W25.txt"
+f = open(file_name, 'r')
 r = f.readlines()
 tournaments = []
 for line in r:
@@ -410,6 +437,7 @@ test_servers = ["Tournament Stats Bot Testing Server", "KingCasual's Server"]
 intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
+intents.members = True
 client = discord.Client(intents=intents)
 f = open("tokens.json")
 data = json.load(f)
@@ -429,9 +457,9 @@ for player in all_players:
 
     if len(spr_lst) >= 2:
         sd = standard_deviation(spr_lst)
-        highest.append([player.name, sd])
+        highest.append([player.name, spr_lst, sum(spr_lst)/len(spr_lst), sd])
 
-highest.sort(key=lambda x: x[1], reverse=True)
+highest.sort(key=lambda x: x[3], reverse=True)
 print(highest)
 """
 
@@ -441,7 +469,7 @@ async def addTournament(ctx):
     global all_names
     l = ctx[5:].split(",")
     add_tournament(str(l[0]), str(l[1]), int(l[2]))
-    add_to_file = open("tournaments.txt", 'a')
+    add_to_file = open(file_name, 'a')
     add_to_file.write("\n" + ctx[5:])
     all_players.sort(reverse=True, key=lambda x: x.display_rating)
     all_names = [x.name.lower() for x in all_players]
@@ -628,6 +656,53 @@ async def headtoHead(ctx):
         await ctx.channel.send("Not Valid Player Name(s)!")
 
 
+# @commands.command()
+# async def ratingsEmbed(ctx, rated, rating_dict):
+#     pages = []
+#     for rate in rating_dict:
+#         new = discord.Embed(title=rated.display_name + " : Rating", description="**" + rate + " " + list(rating_dict[rate].keys())[0] + " / 10**")
+#         pfp = rated.display_avatar.url
+#         new.set_thumbnail(url=pfp)
+#         new.add_field(name='\u200b', value=list(rating_dict[rate].values())[0])
+#         pages.append(new)
+#
+#     message = await ctx.channel.send(embed=pages[0])
+#     await message.add_reaction('⏮')
+#     await message.add_reaction('◀')
+#     await message.add_reaction('▶')
+#     await message.add_reaction('⏭')
+#
+#     def check(reaction, user):
+#         return user == ctx.author
+#
+#     i = 0
+#     reaction = None
+#
+#     while True:
+#         if str(reaction) == '⏮':
+#             i = 0
+#             await message.edit(embed=pages[0])
+#         elif str(reaction) == "◀":
+#             if i > 0:
+#                 i -= 1
+#                 await message.edit(embed=pages[i])
+#         elif str(reaction) == '▶':
+#             if i < len(rating_dict) - 1:
+#                 i += 1
+#                 await message.edit(embed=pages[i])
+#         elif str(reaction) == '⏭':
+#             i = len(rating_dict) - 1
+#             await message.edit(embed=pages[i])
+#
+#         try:
+#             reaction, user = await client.wait_for('reaction_add', timeout=30.0, check=check)
+#             await message.remove_reaction(reaction, user)
+#         except asyncio.TimeoutError:
+#             break
+#
+#     await message.clear_reactions()
+
+
 @commands.command()
 async def leaderboardEmbed(ctx, to_send):
     each_player = to_send.split("\n")
@@ -705,10 +780,11 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith("$"):
+    if message.content.startswith("!"):
         original_message = message.content
         message.content = message.content.lower()
         all_cmd = message.content.split()
+        all_cmd_upper = original_message.split()
         cmd = message.content.split()[0][1:]
         admin = "Exec" in [y.name.lower() for y in message.author.roles] or message.guild.name in test_servers
 
@@ -737,6 +813,38 @@ async def on_message(message):
         if cmd == "ty" or message.content[1:] == "thank you":
             await message.channel.send("You're Welcome <3")
 
+        # if cmd == "rate-to":
+        #     #for x in client.guilds:
+        #     #    print(x, x.id)
+        #     #print(message.channel.guild, message.channel.guild.id)
+        #     # print(client.guilds)
+        #     # print(message.channel.guild)
+        #     to = await message.channel.guild.fetch_member(all_cmd[1][2:-1])
+        #     rating_file = open("ratings.json", 'r+')
+        #     ratings = json.load(rating_file)
+        #     ratings[to.name][message.author.name] = {all_cmd[2]: sum_string_across_list(all_cmd_upper, 3)}
+        #     rating_file.close()
+        #     rating_file = open("ratings.json", 'w')
+        #     json.dump(ratings, rating_file, indent=4)
+        #
+        #     # print(all_cmd[1], all_cmd[1][2:-1])
+        #     # to = client.get_user(int(all_cmd[1][2:-1]))
+        #     # print(to.name.lower())
+        #     # await message.channel.send(all_cmd[1])
+        #
+        # if cmd == "view-rating":
+        #     to = await message.channel.guild.fetch_member(all_cmd[1][2:-1])
+        #     rating_file = open("ratings.json")
+        #     ratings = json.load(rating_file)
+        #     await ratingsEmbed(message, to, ratings[to.name])
+        #     rating_file.close()
+        #     #for item in ratings[to.name]:
+        #     #    print(item)
+        #     #    for i in item:
+        #     #        print(i)
+        #         #item = json.loads(item)
+        #         #print(item, item.key(), item.value())
+
         if cmd == "help":
             help = "Current supported commands:\n- `add [tournament name],[link],[phase id]` add a tournament to the " \
                    "rankings (mod only)\n- `player [player name]` show the overall tournament results of a player\n- " \
@@ -746,22 +854,22 @@ async def on_message(message):
                    "before and after an equals sign separating the two players. "
             await message.channel.send(help)
 
-        if message.content.lower()[1:] == "least consistent player award" and admin:
-            highest = []
-            for player in all_players:
-                spr_lst = []
-                for tourney in player.seeding:
-                    spr = LRFV(player.seeding[tourney]) - LRFV(player.placement[tourney])
-                    if len(player.seeding) > 1:
-                        spr_lst.append(spr)
-
-                if len(spr_lst) >= 2:
-                    sd = standard_deviation(spr_lst)
-                    highest.append([player.name, sd])
-
-            highest.sort(key=lambda x: x[1], reverse=True)
-
-            await message.channel.send("The Least Consistent Player Award goes to: %s" % highest[0][0])
+        # if message.content.lower()[1:] == "least consistent player award" and admin:
+        #     highest = []
+        #     for player in all_players:
+        #         spr_lst = []
+        #         for tourney in player.seeding:
+        #             spr = LRFV(player.seeding[tourney]) - LRFV(player.placement[tourney])
+        #             if len(player.seeding) > 1:
+        #                 spr_lst.append(spr)
+        #
+        #         if len(spr_lst) >= 2:
+        #             sd = standard_deviation(spr_lst)
+        #             highest.append([player.name, sd])
+        #
+        #     highest.sort(key=lambda x: x[1], reverse=True)
+        #
+        #     await message.channel.send("The Least Consistent Player Award goes to: %s" % highest[0][0])
 
         if cmd == "leaderboard":
             if len(all_cmd) > 1:
@@ -795,14 +903,16 @@ async def on_message(message):
                  len(p.placement) >= math.floor(11 / 3)],
                 key=lambda a: expose(a.rating), reverse=True)
 
-            try:
-                start_end = message.content[10:].split()
-                start = int(start_end[0]) - 1
-                end = int(start_end[1]) - 1
+            #try:
+            start_end = message.content[10:].split()
+            start = int(start_end[0]) - 1
+            end = int(start_end[1]) - 1
 
-                await message.channel.send(table_str(leaderboard, start, end, start, end))
-            except:
-                await message.channel.send("Invalid Size Input!")
+            table = table_str(leaderboard, start, end, start, end)
+            # print(table)
+            await message.channel.send(table)
+            # except:
+            #    await message.channel.send("Invalid Size Input!")
 
 
 client.run(TOKEN)
