@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-from new_commands import *
+from commands import *
 from trueskill import setup, Rating, rate_1vs1, expose
 import asyncio
 import discord
