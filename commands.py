@@ -20,6 +20,17 @@ query EventStandings($event: String!, $page: Int!, $perPage: Int!) {
         entrant {
           id
           name
+          initialSeedNum
+          participants {
+            user {
+              player {
+                prefix
+                gamerTag
+              }
+              discriminator
+            }
+          }
+
         }
       }
     }
@@ -49,6 +60,13 @@ query getSets($event:String!, $page:Int!, $perPage:Int!) {
           entrant {
             id
             name
+            participants {
+              prefix
+              gamerTag
+              user {
+                discriminator
+              }
+            }
           }
         }
         winnerId
@@ -57,35 +75,3 @@ query getSets($event:String!, $page:Int!, $perPage:Int!) {
   }
 }
 """
-
-getSeeds = """
-query PhaseSeeds($phaseId: ID!, $page: Int!, $perPage: Int!) {
-  phase(id:$phaseId) {
-    id
-    seeds(query: {
-      page: $page
-      perPage: $perPage
-    }){
-      pageInfo {
-        total
-        totalPages
-      }
-      nodes {
-        id
-        seedNum
-        entrant {
-          id
-          participants {
-            id
-            prefix
-            gamerTag
-          }
-        }
-      }
-    }
-  }
-}
-"""
-# Phase ID is the first number after the link
-# EX: https://www.start.gg/tournament/uwaterloo-ultimate-fall-2023-week-2-electric-boogaloo/event/ultimate-singles
-# /brackets/1469093/2221901 1469093 is the PhaseID
