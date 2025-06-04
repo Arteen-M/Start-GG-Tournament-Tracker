@@ -31,9 +31,9 @@ def ordinal(place):
 def escape_underscore(s):
     if s.count("_") > 0:  # If there is at least 1 underscore
         if s.count("_") % 2 == 0:  # If there are an even number, we have to escape them all
-            return s.replace("_", "\_")
+            return s.replace("_", "\\_")
         else:  # If there are an odd number, we escape them all (except for the last one)
-            return s.replace("_", "\_", s.count("_", s.count("_")))
+            return s.replace("_", "\\_", s.count("_", s.count("_")))
     else:
         return s  # If there are 0 underscores, just keep the message the same
 
@@ -366,19 +366,49 @@ def add_sets(name, link, page, per_page):
         all_players_by_id[player].all_ratings.append(int(all_players_by_id[player].display_rating))
 
 
+def add_safety(func, *args, entrants=100):
+    page = 1
+    per_page = entrants
+
+    while True:
+        try:
+            for x in range(1, page + 1):
+                func(args[0], args[1], x, per_page)
+            break
+        except KeyError:
+            page = page * 2 + per_page % 2
+            per_page //= 2
+
+
 def add_tournament(name, link):
-    add_placing(name, link, 1, 100)
-    add_sets(name, link, 1, 100)
+    while True:
+        try:
+            add_safety(add_placing, name, link)
+            break
+        except requests.exceptions.JSONDecodeError:
+            pass
+
+    while True:
+        try:
+            add_safety(add_sets, name, link)
+            break
+        except requests.exceptions.JSONDecodeError:
+            pass
+
+# def add_tournament(name, link):
+#     add_placing(name, link, 1, 100)
+#     add_sets(name, link, 1, 100)
 
 
-file_name = "Tournaments/tournaments W25.txt"
+file_name = "Tournaments/tournaments S25.txt"
 f = open(file_name, 'r')
 r = f.readlines()
 tournaments = []
 for line in r:
-    tournaments.append(line.strip("\n"))
-    line = line.strip("\n").split(",")
-    add_tournament(str(line[0]), str(line[1]))
+    if line != "\n":
+        tournaments.append(line.strip("\n"))
+        line = line.strip("\n").split(",")
+        add_tournament(str(line[0]), str(line[1]))
 
 test_servers = ["Tournament Stats Bot Testing Server", "KingCasual's Server"]
 
@@ -655,7 +685,7 @@ async def on_message(message):
         message.content = message.content.lower()
         all_cmd = message.content.split()
         cmd = message.content.split()[0][1:]
-        admin = "Exec" in [y.name.lower() for y in message.author.roles] or message.guild.name in test_servers
+        admin = "exec" in [y.name.lower() for y in message.author.roles] or message.guild.name in test_servers
 
         if cmd == "add" and admin:
             if original_message not in tournaments:
@@ -683,14 +713,14 @@ async def on_message(message):
             await message.channel.send("You're Welcome <3")
 
         if cmd == "help":
-            help = "Current supported commands:\n- `add [tournament name],[link],[phase id]` add a tournament to the " \
-                   "rankings (mod only)\n- `player [player name]` show the overall tournament results of a player\n- " \
-                   "`results [player name]` show the specific players results.\n- " \
-                   "`sets [player name]` show the specific sets a player\n- `leaderboard [tournaments (1 if " \
+            help_str = "Current supported commands:\n- `$add [tournament name],[link]` add a tournament to the " \
+                   "rankings (mod only)\n- `$player [player name]` show the overall tournament results of a player\n- " \
+                   "`$results [player name]` show the specific players results.\n- " \
+                   "`$sets [player name]` show the specific sets a player\n- `$leaderboard [tournaments (1 if " \
                    "omitted)]` show the current best rated players who played in a minimum number of tournaments.\n- " \
-                   "`h2h [player name] = [player name]` shows head-to-head data. Make sure there is a space both " \
+                   "`$h2h [player name] = [player name]` shows head-to-head data. Make sure there is a space both " \
                    "before and after an equals sign separating the two players. "
-            await message.channel.send(help)
+            await message.channel.send(help_str)
 
         if cmd == "leaderboard":
             if len(all_cmd) > 1:
