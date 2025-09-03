@@ -303,6 +303,8 @@ def add_placing(name, link, page, per_page):
             all_players_by_id[newPlayer.id] = newPlayer
             all_players_by_name[newPlayer.name.lower()] = newPlayer
             all_players_by_prefix[newPlayer.display_name.lower()] = newPlayer
+        else:
+            newPlayer = player_lookup(newPlayer.id)
 
         all_players_by_id[newPlayer.id].placement[name] = node['placement']
         all_players_by_id[newPlayer.id].seeding[name] = entrant['initialSeedNum']
@@ -339,8 +341,8 @@ def add_sets(name, link, page, per_page):
         new_set = Set(winner_name, loser_name, score, name)
 
         if score[1] != -1:
-            winner = all_players_by_id[winner_name]
-            loser = all_players_by_id[loser_name]
+            winner = player_lookup(winner_name)
+            loser = player_lookup(loser_name)
             new_set.winner_increase = expose(winner.rating)
             new_set.loser_decrease = expose(loser.rating)
             winner.rating, loser.rating = rate_1vs1(winner.rating, loser.rating)
@@ -373,11 +375,14 @@ def add_safety(func, *args, entrants=100):
     while True:
         try:
             for x in range(1, page + 1):
+                # print(args[0], x, per_page)
                 func(args[0], args[1], x, per_page)
             break
-        except KeyError:
+        except KeyError as e:
             page = page * 2 + per_page % 2
             per_page //= 2
+            if per_page == 0:
+                raise Exception("Fatal Error occured when registering %s" % e)
 
 
 def add_tournament(name, link):
@@ -386,21 +391,21 @@ def add_tournament(name, link):
             add_safety(add_placing, name, link)
             break
         except requests.exceptions.JSONDecodeError:
-            pass
+            print("error1")
 
     while True:
         try:
             add_safety(add_sets, name, link)
             break
         except requests.exceptions.JSONDecodeError:
-            pass
+            print("error2")
 
 # def add_tournament(name, link):
 #     add_placing(name, link, 1, 100)
 #     add_sets(name, link, 1, 100)
 
 
-file_name = "Tournaments/tournaments S25.txt"
+file_name = "Tournaments/KWC tournaments.txt"
 f = open(file_name, 'r')
 r = f.readlines()
 tournaments = []
@@ -753,7 +758,7 @@ async def on_message(message):
         if cmd == "pr-table":
             leaderboard = sorted(
                 [p for p in all_players_by_id if
-                 len(all_players_by_id[p].placement) >= math.floor(11 / 3)],
+                 len(all_players_by_id[p].placement) >= 4],# math.floor(11 / 3)],
                 key=lambda a: expose(all_players_by_id[a].rating), reverse=True)
 
             start_end = message.content[10:].split()
